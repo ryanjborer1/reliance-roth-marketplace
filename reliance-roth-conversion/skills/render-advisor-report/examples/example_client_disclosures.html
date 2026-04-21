@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Client Disclosures — Reliance Financial Partners</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bronze: #867550;
+    --bronze-dark: #6b5d3f;
+    --ink: #232020;
+    --charcoal: #32373c;
+    --muted: #6b6b68;
+    --paper: #f5f5f5;
+    --rule: #d9d4c7;
+    --rule-soft: #ece8dd;
+    --accent-soft: #f0ece1;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', -apple-system, sans-serif;
+    color: var(--ink);
+    background: #e9e6df;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 24px auto;
+    background: var(--paper);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- MASTHEAD ---------- */
+  .masthead {
+    background: #000;
+    color: #fff;
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--bronze);
+  }
+  .mark { display: flex; align-items: center; gap: 18px; }
+  .mark svg { width: 44px; height: 52px; }
+  .wordmark {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .wordmark span {
+    display: block;
+    font-weight: 300;
+    font-size: 10px;
+    color: var(--bronze);
+    letter-spacing: 0.22em;
+    margin-top: 4px;
+  }
+  .doc-label {
+    text-align: right;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bronze);
+    font-weight: 500;
+  }
+  .doc-label strong {
+    display: block;
+    color: #fff;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    margin-top: 4px;
+  }
+
+  /* ---------- SECTIONS ---------- */
+  .intro {
+    padding: 28px 48px 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .eyebrow {
+    color: var(--bronze);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-weight: 600;
+    font-size: 10px;
+    margin-bottom: 10px;
+  }
+  .intro h1 {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.25;
+    margin: 0 0 10px 0;
+    color: var(--ink);
+  }
+  .intro p {
+    font-size: 13px;
+    color: var(--charcoal);
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 300;
+    max-width: 640px;
+  }
+
+  .sec {
+    padding: 22px 48px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .sec.white { background: #fff; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--bronze);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    margin: 0 0 12px 0;
+  }
+  .sec p {
+    font-size: 11.5px;
+    color: var(--charcoal);
+    line-height: 1.6;
+    margin: 0 0 8px 0;
+    font-weight: 300;
+  }
+  .sec p:last-child { margin-bottom: 0; }
+  .sec p strong { color: var(--ink); font-weight: 600; }
+  .sec p em { color: var(--muted); font-style: italic; }
+
+  /* ---------- CALLOUT (NOT TAX ADVICE) ---------- */
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--bronze);
+    padding: 14px 18px;
+    margin: 0 48px 18px;
+    margin-top: -2px;
+  }
+  .callout .ct {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--bronze);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    margin: 0 0 6px 0;
+  }
+  .callout p {
+    font-size: 11.5px;
+    color: var(--charcoal);
+    line-height: 1.55;
+    margin: 0;
+    font-weight: 300;
+  }
+
+  /* ---------- NUMBERED STEPS ---------- */
+  .steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .steps li {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--rule-soft);
+    align-items: baseline;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .steps .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--bronze);
+    letter-spacing: 0.08em;
+  }
+  .steps .desc {
+    font-size: 11.5px;
+    color: var(--charcoal);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+  .steps .desc strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- ASSUMPTIONS GRID ---------- */
+  .assumptions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+    background: #fff;
+  }
+  .assumption {
+    padding: 12px 14px;
+    border-right: 1px solid var(--rule-soft);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .assumption:nth-child(3n) { border-right: none; }
+  .assumption:nth-last-child(-n+3) { border-bottom: none; }
+  .assumption .a-label {
+    font-size: 8.5px;
+    font-weight: 600;
+    color: var(--bronze);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 4px;
+  }
+  .assumption .a-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .assumption .a-note {
+    font-size: 9.5px;
+    color: var(--muted);
+    line-height: 1.4;
+    font-weight: 300;
+  }
+
+  /* ---------- FOOTER ---------- */
+  .foot {
+    padding: 22px 48px 28px;
+    margin-top: auto;
+    border-top: 3px solid var(--bronze);
+    background: #000;
+    color: #fff;
+  }
+  .foot .advisor-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 11px;
+    margin-bottom: 14px;
+  }
+  .foot .advisor-line strong {
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 10px;
+  }
+  .foot .advisor-line span { color: var(--bronze); }
+  .disclosure {
+    font-size: 8.5px;
+    color: #9a9388;
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .page { margin: 0; box-shadow: none; }
+    @page { size: letter; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- MASTHEAD (matches the three lever templates exactly) -->
+  <header class="masthead">
+    <div class="mark">
+      <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="6" y="4" width="88" height="10" fill="#867550"/>
+        <path d="M 10 22 L 10 68 Q 10 98 50 114 Q 90 98 90 68 L 90 22 Z"
+              fill="none" stroke="#867550" stroke-width="4.5"/>
+        <text x="50" y="72" text-anchor="middle"
+              font-family="Georgia, 'Times New Roman', serif"
+              font-size="46" font-weight="400" fill="#867550">R</text>
+        <rect x="42" y="80" width="16" height="2.5" fill="#867550"/>
+      </svg>
+      <div class="wordmark">
+        Reliance<br>Financial Partners
+        <span>Think bigger. Live better.</span>
+      </div>
+    </div>
+    <div class="doc-label">
+      Client Disclosures
+      <strong>April 2026</strong>
+    </div>
+  </header>
+
+  <!-- INTRO -->
+  <section class="intro">
+    <div class="eyebrow">About This Document</div>
+    <h1>Disclosures for your Roth conversion analysis</h1>
+    <p>This page accompanies the Roth conversion analysis we prepared for you. It explains who we are, what the analysis does and does not do, and the key assumptions behind the numbers you saw. Please read it alongside your one-pager.</p>
+  </section>
+
+  <!-- RELIANCE / WHO WE ARE -->
+  <section class="sec white">
+    <h2 class="section-title">1 &middot; About Reliance Financial Partners</h2>
+    <p>Reliance Financial Partners is a registered investment advisory firm. As fiduciaries, we are required to act in your best interest. Advisory services and additional disclosures, including our Form ADV, are available at reliancefinancialpartners.com or by request.</p>
+    <p><em>[Compliance to finalize firm-description block with the current language published on reliancefinancialpartners.com, including any broker-dealer or IAR relationships, state registrations, and the fiduciary statement.]</em></p>
+  </section>
+
+  <!-- NOT TAX ADVICE CALLOUT -->
+  <div class="callout">
+    <p class="ct">This analysis is not tax advice</p>
+    <p>We are not a CPA firm and we do not prepare tax returns. The projections shown estimate how a Roth conversion strategy could affect your future federal and state tax picture under a set of stated assumptions. Review this analysis with a qualified tax professional before taking action. Your actual tax outcome will depend on your complete return, future tax law changes, and facts not captured here.</p>
+  </div>
+
+  <!-- HOW WE BUILT IT -->
+  <section class="sec">
+    <h2 class="section-title">2 &middot; How we built the numbers</h2>
+    <ol class="steps">
+      <li>
+        <span class="n">01</span>
+        <span class="desc"><strong>Deterministic calculation.</strong> Every figure on your one-pager comes from a year-by-year tax projection run through our in-house calculation engine. Given the same inputs, the engine produces the same numbers every time.</span>
+      </li>
+      <li>
+        <span class="n">02</span>
+        <span class="desc"><strong>Versioned tax facts.</strong> Federal brackets, standard deductions, IRMAA tiers, RMD divisors, and applicable state tax rules are loaded from a dated reference table. The version used for your analysis is stamped in the footer of your one-pager.</span>
+      </li>
+      <li>
+        <span class="n">03</span>
+        <span class="desc"><strong>Separation of math and narrative.</strong> The numbers are calculated by the engine. The written explanation around them is reviewed by your advisor before it reaches you.</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- KEY ASSUMPTIONS -->
+  <section class="sec white">
+    <h2 class="section-title">3 &middot; Key assumptions used in your analysis</h2>
+    <div class="assumptions">
+      <div class="assumption">
+        <div class="a-label">Investment Growth</div>
+        <div class="a-value">5.0% / yr</div>
+        <div class="a-note">Applied to pre-tax and taxable balances. Single rate; not asset-class specific.</div>
+      </div>
+      <div class="assumption">
+        <div class="a-label">Social Security COLA</div>
+        <div class="a-value">2.5% / yr</div>
+        <div class="a-note">Applied to Social Security and bracket thresholds beyond legislated values.</div>
+      </div>
+      <div class="assumption">
+        <div class="a-label">Pension COLA</div>
+        <div class="a-value">0.0% / yr</div>
+        <div class="a-note">Defaults to 0% unless your pension has a published cost-of-living adjustment.</div>
+      </div>
+      <div class="assumption">
+        <div class="a-label">Life Expectancy</div>
+        <div class="a-value">Age 90</div>
+        <div class="a-note">Projection horizon runs through the longer-lived person's age 90 unless we modeled otherwise.</div>
+      </div>
+      <div class="assumption">
+        <div class="a-label">Conversion Tax Paid From</div>
+        <div class="a-value">Outside funds</div>
+        <div class="a-note">Taxable account or cash, not the converted amount, unless you chose otherwise.</div>
+      </div>
+      <div class="assumption">
+        <div class="a-label">State of Residence</div>
+        <div class="a-value">Texas</div>
+        <div class="a-note">Held constant for the full projection unless a move was explicitly modeled.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIMITATIONS -->
+  <section class="sec">
+    <h2 class="section-title">4 &middot; What this analysis does not do</h2>
+    <ol class="steps">
+      <li>
+        <span class="n">01</span>
+        <span class="desc"><strong>It does not replace a tax return.</strong> We do not compute your complete 1040. Items outside the conversion picture &mdash; itemized deductions, credits, AMT interactions, business income &mdash; are summarized, not fully modeled.</span>
+      </li>
+      <li>
+        <span class="n">02</span>
+        <span class="desc"><strong>It assumes tax law as it stands today.</strong> Federal and state tax law can and does change. Your actual results will vary if brackets, rates, IRMAA thresholds, or retirement rules are revised. Projections beyond 2028 index current law forward by assumed inflation.</span>
+      </li>
+      <li>
+        <span class="n">03</span>
+        <span class="desc"><strong>It shows nominal dollars, not real.</strong> Figures are future dollars, useful for comparing tax outcomes, not for measuring purchasing power.</span>
+      </li>
+      <li>
+        <span class="n">04</span>
+        <span class="desc"><strong>It does not account for major life changes.</strong> A change in health, employment, marital status, or residence can shift the picture. Tell your advisor and we will rerun.</span>
+      </li>
+      <li>
+        <span class="n">05</span>
+        <span class="desc"><strong>Past performance does not predict future returns.</strong> Growth assumptions are planning estimates, not guarantees.</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- FOOTER (matches lever templates) -->
+  <footer class="foot">
+    <div class="advisor-line">
+      <strong>Reliance Financial Partners &middot; Reliance Financial Partners</strong>
+      <span>reliancefinancialpartners.com</span>
+    </div>
+    <p class="disclosure">
+      This illustration is prepared for planning purposes using current federal and state tax law and inflation-adjusted projections. Actual tax brackets, standard deductions, IRMAA thresholds, and RMD divisors are subject to change. Estimates assume steady income and growth as stated above. Review with your tax professional before filing. Not an offer of tax or legal advice. Prepared April 2026 &middot; Tax-Fact v2025.11 &middot; Engine v1.0.0 &middot; Run f63befbc.
+    </p>
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -9,7 +9,7 @@ description: >
   Triggers when the advisor says "build a scenario", "start a new Roth
   conversion case", "set up a conversion for <client>", "model a
   conversion", or invokes the skill cold with no context.
-version: 0.2.4
+version: 0.2.6
 ---
 
 # build-scenario

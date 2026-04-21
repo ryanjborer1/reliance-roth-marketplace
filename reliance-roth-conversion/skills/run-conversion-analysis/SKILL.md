@@ -8,7 +8,7 @@ description: >
   scenario", "compute the numbers", "calculate the conversion", or
   asks for the output after a Scenario was just built by
   build-scenario.
-version: 0.2.5
+version: 0.2.6
 ---
 
 # run-conversion-analysis

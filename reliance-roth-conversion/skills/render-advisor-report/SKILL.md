@@ -10,7 +10,7 @@ description: >
   report", "build the client one-pagers", "generate the deliverables",
   "turn this Run into a deliverable", or asks for advisor-facing
   output after a conversion analysis.
-version: 0.2.5
+version: 0.2.6
 ---
 
 # render-advisor-report
@@ -121,3 +121,17 @@ Keep it tight:
 
 - PDF export. HTML only. Browser print-to-PDF works.
 - Docx export. V1 is HTML only.
+
+## Reference material bundled with this skill
+
+Two reference-only folders sit next to this SKILL.md for inspection and
+design review:
+
+- `templates/` — the five Jinja2 source templates (snapshots of what the
+  server renders at plugin build time).
+- `examples/` — five actual rendered HTMLs from one live Doe run, so
+  anyone can preview the deliverables without running the engine.
+
+These files are NOT executed. Canonical templates live server-side on the
+hosted Reliance engine. If the server updates templates, these in-plugin
+copies can drift — treat as snapshots.

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advisor Audit — {{ firm_name }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Georgia&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bronze: #867550;
+    --bronze-dark: #6b5d3f;
+    --ink: #232020;
+    --charcoal: #32373c;
+    --muted: #6b6b68;
+    --paper: #f5f5f5;
+    --rule: #d9d4c7;
+    --rule-soft: #ece8dd;
+    --accent-soft: #f0ece1;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: 'Poppins', -apple-system, sans-serif; color: var(--ink); background: #e9e6df; -webkit-font-smoothing: antialiased; }
+  .page { width: 8.5in; min-height: 11in; margin: 24px auto; padding: 0.6in 0.75in; background: var(--paper); box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; flex-direction: column; }
+  .masthead { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 18px; border-bottom: 2px solid var(--bronze); margin-bottom: 22px; }
+  .mark { display: flex; align-items: center; gap: 14px; }
+  .mark svg { width: 42px; height: 50px; }
+  .wordmark { font-family: Georgia, serif; font-size: 13.5pt; line-height: 1.12; color: var(--ink); font-weight: 400; }
+  .wordmark span { display: block; font-family: 'Poppins'; font-size: 8pt; font-weight: 300; color: var(--bronze); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+  .doc-label { text-align: right; font-size: 9pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; }
+  .doc-label strong { display: block; font-size: 12pt; color: var(--ink); font-weight: 500; letter-spacing: 0; text-transform: none; margin-top: 4px; }
+  .sec { margin-bottom: 24px; }
+  .sec.first { margin-top: 0; }
+  .eyebrow { font-size: 8pt; color: var(--bronze); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; font-weight: 500; }
+  .audit-tag { display: inline-block; background: var(--bronze); color: white; padding: 2px 8px; border-radius: 3px; margin-right: 8px; font-weight: 500; }
+  .page-title { font-family: Georgia, serif; font-size: 24pt; font-weight: 400; margin: 0 0 10px; line-height: 1.1; }
+  .section-title { font-family: Georgia, serif; font-size: 16pt; font-weight: 400; color: var(--ink); margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--rule-soft); }
+  .lead { font-size: 10pt; color: var(--muted); margin: 0 0 16px; line-height: 1.5; }
+  .cover-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 16px 0 22px; padding: 16px; background: var(--accent-soft); border-radius: 4px; }
+  .cell { padding: 4px 10px; border-right: 1px solid var(--rule); }
+  .cell:last-child { border-right: none; }
+  .cell .label { font-size: 8pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .cell .value { font-family: Georgia, serif; font-size: 14pt; color: var(--ink); font-weight: 500; margin-bottom: 2px; }
+  .cell .sub { font-size: 8pt; color: var(--muted); font-style: italic; }
+  .engine-stamp { font-size: 8.5pt; color: var(--muted); padding: 10px 14px; background: white; border-left: 3px solid var(--bronze); margin-bottom: 16px; line-height: 1.5; }
+  .engine-stamp code { font-family: 'SF Mono', Menlo, monospace; font-size: 8pt; background: var(--accent-soft); padding: 1px 5px; border-radius: 2px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .sub { font-family: Georgia, serif; font-size: 11pt; font-weight: 500; margin: 12px 0 8px; color: var(--charcoal); }
+  table.data { width: 100%; border-collapse: collapse; font-size: 9pt; margin-bottom: 10px; }
+  table.data thead th { text-align: left; background: var(--accent-soft); padding: 6px 8px; font-weight: 500; color: var(--charcoal); font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.04em; }
+  table.data td { padding: 5px 8px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.data td.hl { color: var(--ink); font-weight: 500; }
+  table.data caption { caption-side: bottom; font-size: 8pt; color: var(--muted); text-align: left; padding: 6px 4px; font-style: italic; }
+  .note { font-size: 9pt; padding: 10px 14px; background: white; border-left: 3px solid var(--bronze); color: var(--charcoal); line-height: 1.5; }
+  .note strong { color: var(--ink); }
+  .foot { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--rule-soft); font-size: 8pt; color: var(--muted); }
+  .advisor-line { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--ink); }
+  .advisor-line strong { font-weight: 500; }
+  .page-num { color: var(--muted); }
+  .disclosure { margin: 0; line-height: 1.5; }
+  .banner-note { background: #fff4d9; border: 1px solid #d9b641; padding: 10px 14px; border-radius: 3px; font-size: 9pt; color: var(--charcoal); margin-bottom: 16px; line-height: 1.5; }
+  .banner-note strong { color: var(--ink); }
+  @media print { .page { margin: 0; box-shadow: none; page-break-after: always; } }
+</style>
+</head>
+<body>
+
+{% macro masthead() %}
+<header class="masthead">
+  <div class="mark">
+    <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="6" y="4" width="88" height="10" fill="#867550"/>
+      <path d="M 10 22 L 10 68 Q 10 98 50 114 Q 90 98 90 68 L 90 22 Z" fill="none" stroke="#867550" stroke-width="4.5"/>
+      <text x="50" y="72" text-anchor="middle" font-family="Georgia, serif" font-size="46" font-weight="400" fill="#867550">R</text>
+      <rect x="42" y="80" width="16" height="2.5" fill="#867550"/>
+    </svg>
+    <div class="wordmark">{{ firm_name_line_1 }}<br>{{ firm_name_line_2 }}<span>{{ firm_tagline }}</span></div>
+  </div>
+  <div class="doc-label">Advisor Audit Package<strong>{{ report_date }}</strong></div>
+</header>
+{% endmacro %}
+
+<!-- PAGE 1 — COVER + CLIENT INPUTS -->
+<div class="page">
+  {{ masthead() }}
+  <section class="sec first">
+    <div class="eyebrow"><span class="audit-tag">Advisor Only</span>Not for client distribution</div>
+    <h1 class="page-title">Roth Conversion Strategy — Audit &amp; Methodology</h1>
+    <p class="lead">Every figure on the client one-pagers traces back to a line in this document. Review before the client meeting; keep it in the file.</p>
+
+    <div class="cover-box">
+      <div class="cell">
+        <div class="label">Client Scenario</div>
+        <div class="value">{{ household_summary }}</div>
+        <div class="sub">{{ household_sub }}</div>
+      </div>
+      <div class="cell">
+        <div class="label">Traditional IRA</div>
+        <div class="value">{{ ira_fmt }}</div>
+        <div class="sub">Pre-tax, starting balance</div>
+      </div>
+      <div class="cell">
+        <div class="label">Conversion Schedule</div>
+        <div class="value">{{ conversion_total_fmt }}</div>
+        <div class="sub">{{ conversion_span }}</div>
+      </div>
+      <div class="cell">
+        <div class="label">Projected Lifetime Tax Saved</div>
+        <div class="value">{{ lifetime_saved_fmt }}</div>
+        <div class="sub">Federal, through age {{ horizon_age }}</div>
+      </div>
+    </div>
+
+    <div class="engine-stamp">
+      <strong style="color:var(--ink);">Calculation engine:</strong> reliance-roth-engine <code>v{{ engine_version }}</code> &middot; tax-facts <code>{{ tax_fact_version }}</code> &middot; run ID <code>{{ run_id }}</code> &middot; run date {{ report_date }}. Deterministic — same inputs produce same outputs.
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2 class="section-title">1 &middot; Client Inputs</h2>
+    <p class="lead">Values as provided by advisor and run against the engine. Any change invalidates this audit and requires a re-run.</p>
+
+    <div class="two-col">
+      <div>
+        <h3 class="sub">Personal</h3>
+        <table class="data">
+          <tbody>
+            <tr><td>Filing status</td><td class="num hl">{{ filing_status }}</td></tr>
+            {% for f in filers %}
+            <tr><td>{{ f.name }}</td><td class="num hl">Age {{ f.age }} ({{ f.dob }})</td></tr>
+            {% endfor %}
+            <tr><td>State of residence</td><td class="num hl">{{ state_name }}</td></tr>
+            <tr><td>Life expectancy assumption</td><td class="num hl">Age {{ horizon_age }}</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="sub">Income (first projection year)</h3>
+        <table class="data">
+          <tbody>
+            {% for row in income_rows %}
+            <tr><td>{{ row.label }}</td><td class="num hl">{{ row.value }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <h3 class="sub">Balances (start of {{ first_projection_year }})</h3>
+        <table class="data">
+          <tbody>
+            <tr><td>Traditional IRA</td><td class="num hl">{{ ira_fmt }}</td></tr>
+            <tr><td>Roth IRA</td><td class="num hl">{{ roth_fmt }}</td></tr>
+            <tr><td>Taxable brokerage</td><td class="num hl">{{ brokerage_fmt }}</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="sub">Modeling Assumptions</h3>
+        <table class="data">
+          <tbody>
+            <tr><td>Portfolio growth</td><td class="num hl">{{ growth_rate_pct }}% / yr</td></tr>
+            <tr><td>Social Security COLA</td><td class="num hl">{{ ss_cola_pct }}% / yr</td></tr>
+            <tr><td>Pension COLA</td><td class="num hl">{{ pension_cola_pct }}% / yr</td></tr>
+            <tr><td>Bracket inflation</td><td class="num hl">{{ bracket_inflation_pct }}% / yr</td></tr>
+            <tr><td>IRMAA drift</td><td class="num hl">{{ irmaa_drift_pct }}% / yr</td></tr>
+            <tr><td>Conversion tax paid from</td><td class="num hl">Taxable brokerage</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note" style="margin-top:14px;">
+          <strong>Why outside funds matter:</strong> paying conversion tax from taxable dollars (not from the IRA itself) increases the after-tax wealth moved into the Roth, because the full converted balance compounds inside the Roth rather than being net of withholding.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="advisor-line"><strong>{{ advisor_name }} &middot; {{ firm_name }}</strong><span class="page-num">Page 1 of 3</span></div>
+    <p class="disclosure">Advisor working document. Not for client distribution. Inputs snapshot as of the cover run date.</p>
+  </footer>
+</div>
+
+<!-- PAGE 2 — LIFETIME COMPARISON + FIRST-YEAR SNAPSHOT -->
+<div class="page">
+  {{ masthead() }}
+  <section class="sec first">
+    <h2 class="section-title">2 &middot; Lifetime Comparison ({{ first_projection_year }} → {{ last_projection_year }})</h2>
+    <p class="lead">Engine-computed plan vs. no-conversion baseline across the full projection horizon.</p>
+
+    <div class="two-col">
+      <div>
+        <h3 class="sub">Baseline (No Plan)</h3>
+        <table class="data">
+          <tbody>
+            <tr><td>Lifetime federal tax</td><td class="num hl">{{ baseline_fed_tax_fmt }}</td></tr>
+            <tr><td>Lifetime state tax</td><td class="num hl">{{ baseline_state_tax_fmt }}</td></tr>
+            <tr><td>Lifetime IRMAA</td><td class="num hl">{{ baseline_irmaa_fmt }}</td></tr>
+            <tr><td>Ending trad IRA</td><td class="num hl">{{ baseline_ending_ira_fmt }}</td></tr>
+            <tr><td>Ending Roth</td><td class="num hl">{{ baseline_ending_roth_fmt }}</td></tr>
+            <tr><td>Ending brokerage</td><td class="num hl">{{ baseline_ending_brokerage_fmt }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 class="sub">With Plan</h3>
+        <table class="data">
+          <tbody>
+            <tr><td>Lifetime federal tax</td><td class="num hl">{{ plan_fed_tax_fmt }}</td></tr>
+            <tr><td>Lifetime state tax</td><td class="num hl">{{ plan_state_tax_fmt }}</td></tr>
+            <tr><td>Lifetime IRMAA</td><td class="num hl">{{ plan_irmaa_fmt }}</td></tr>
+            <tr><td>Ending trad IRA</td><td class="num hl">{{ plan_ending_ira_fmt }}</td></tr>
+            <tr><td>Ending Roth</td><td class="num hl">{{ plan_ending_roth_fmt }}</td></tr>
+            <tr><td>Ending brokerage</td><td class="num hl">{{ plan_ending_brokerage_fmt }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:16px;">
+      <strong>Plan Advantage:</strong> lifetime federal tax saved <strong>{{ lifetime_saved_fmt }}</strong> &middot; asset shift into Roth <strong>{{ ending_roth_delta_fmt }}</strong> &middot; ending net worth (pretax-equivalent) <strong>{{ plan_net_worth_fmt }}</strong> vs. <strong>{{ baseline_net_worth_fmt }}</strong>.
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2 class="section-title">3 &middot; First-Year Calculation Snapshot ({{ first_projection_year }})</h2>
+    <p class="lead">Engine year-1 output. Shows AGI buildup, deductions, taxable income, and tax computation with the full scenario inputs including any conversion amount for this year.</p>
+
+    <table class="data">
+      <thead>
+        <tr><th>Line Item</th><th class="num">With Plan</th></tr>
+      </thead>
+      <tbody>
+        {% for row in year1_snapshot %}
+        <tr><td>{{ row.label }}</td><td class="num hl">{{ row.value }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <footer class="foot">
+    <div class="advisor-line"><strong>{{ advisor_name }} &middot; {{ firm_name }}</strong><span class="page-num">Page 2 of 3</span></div>
+    <p class="disclosure">Lifetime comparison reflects the engine's projection against the specified horizon and tax-fact version. Baseline = same facts with an empty conversion schedule.</p>
+  </footer>
+</div>
+
+<!-- PAGE 3 — METHODOLOGY + SOURCE LEDGER + DISCLOSURES -->
+<div class="page">
+  {{ masthead() }}
+
+  <div class="banner-note">
+    <strong>v1 audit — Tyler review pending.</strong> This audit follows the v1 simplified structure (3 pages). Tyler's full 5-page audit template with the 22-point narrative grid and bracket-by-bracket walkthrough is in backlog for v2; this v1 ships the essentials parameterized against live engine output so the advisor-facing compliance trail is in place.
+  </div>
+
+  <section class="sec first">
+    <h2 class="section-title">4 &middot; Methodology</h2>
+    <ol style="margin:0;padding-left:22px;font-size:10pt;line-height:1.6;color:var(--charcoal);">
+      <li><strong>Deterministic calculation.</strong> The engine is a pure function of (Scenario, TaxFactTable, engine_version). Same inputs → identical outputs every run. The <code>run_id</code> on the cover hashes the full input fingerprint.</li>
+      <li><strong>Versioned tax facts.</strong> Federal brackets, standard deductions, OBBBA senior bonus, IRMAA tiers, RMD divisors, LTCG stacking thresholds, and state rules load from a dated reference table (version <code>{{ tax_fact_version }}</code>). Each fact carries a source citation in §5.</li>
+      <li><strong>Separation of math and narrative.</strong> Every number on every client one-pager is computed by the engine. Narrative prose is authored by the advisor and reviewed before client delivery. The LLM orchestrates the conversation; it does not compute tax numbers.</li>
+      <li><strong>Post-2028 projection.</strong> Federal brackets, standard deductions, and IRMAA tiers index forward at {{ bracket_inflation_pct }}% / yr. The OBBBA senior bonus sunsets after 2028 and is zeroed thereafter.</li>
+      <li><strong>Conversion-tax funding.</strong> Tax on the conversion is paid from the taxable brokerage unless a budget override is specified.</li>
+    </ol>
+  </section>
+
+  <section class="sec">
+    <h2 class="section-title">5 &middot; Source Ledger</h2>
+    <p class="lead">Every tax fact referenced in this run cites a source in the engine's ledger. Federal facts are advisor-approved; state facts are in pilot status unless explicitly verified.</p>
+    <table class="data">
+      <thead>
+        <tr><th>Fact ID</th><th>Source</th><th class="num">Verified</th></tr>
+      </thead>
+      <tbody>
+        {% for entry in source_ledger %}
+        <tr><td>{{ entry.fact_id }}</td><td>{{ entry.source }}</td><td class="num hl">{{ "Yes" if entry.verified else "Pilot" }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <caption>Tax-fact version {{ tax_fact_version }} &middot; {{ source_ledger|length }} ledger entries</caption>
+    </table>
+  </section>
+
+  <section class="sec">
+    <h2 class="section-title">6 &middot; Known Limitations</h2>
+    <ul style="margin:0;padding-left:22px;font-size:9.5pt;line-height:1.6;color:var(--charcoal);">
+      <li>Engine pays all conversion tax from taxable brokerage; insufficient brokerage produces a <code>BROKERAGE_INSUFFICIENT</code> halt.</li>
+      <li>IRMAA 2-year lookback uses a projected proxy for the first two projection years — flagged in run disclosures.</li>
+      <li>Post-2028 uses <code>bracket_inflation</code> drift; OBBBA senior bonus stays off; NIIT and SS thresholds stay static.</li>
+      <li>V1 filing statuses: MFJ and Single only. HOH and MFS refused at intake.</li>
+      <li>State facts outside the V1 seed list (TX, FL, AZ, AR, OK, MS) require onboarding before use.</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    <div class="advisor-line"><strong>{{ advisor_name }} &middot; {{ firm_name }}</strong><span class="page-num">Page 3 of 3</span></div>
+    <p class="disclosure">Advisor working document. Not for client distribution. Tax and IRMAA figures reflect federal law and CMS guidance as of run date. Review with tax counsel before filing. Run ID {{ run_id }} &middot; Engine v{{ engine_version }} &middot; Tax-Fact v{{ tax_fact_version }}.</p>
+  </footer>
+</div>
+
+</body>
+</html>
