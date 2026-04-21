@@ -1,0 +1,14 @@
+{
+  "name": "reliance-roth-conversion",
+  "version": "0.2.5",
+  "description": "Advisor workflow for multi-year Roth conversion analysis at Reliance Financial Partners. Conversational intake, hosted deterministic engine, client-facing one-pagers.",
+  "author": {
+    "name": "AdvisorCRM"
+  },
+  "keywords": [
+    "roth-conversion",
+    "tax-planning",
+    "financial-advisor",
+    "reliance"
+  ]
+}
