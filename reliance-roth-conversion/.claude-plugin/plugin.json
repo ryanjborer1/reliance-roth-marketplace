@@ -1,7 +1,7 @@
 {
   "name": "reliance-roth-conversion",
-  "version": "0.2.6",
-  "description": "Advisor workflow for multi-year Roth conversion analysis at Reliance Financial Partners. Conversational intake, hosted deterministic engine, five deliverables per run (three client narrative framings plus client disclosures and advisor audit).",
+  "version": "0.2.7",
+  "description": "Advisor workflow for multi-year Roth conversion analysis at Reliance Financial Partners. Conversational intake, hosted deterministic engine, iterative chat-only what-if loop, single-click commit to three HTML deliverables (scenario, compliance, advisor).",
   "author": {
     "name": "AdvisorCRM"
   },

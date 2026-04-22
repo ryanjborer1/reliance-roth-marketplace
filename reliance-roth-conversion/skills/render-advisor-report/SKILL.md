@@ -1,41 +1,46 @@
 ---
 name: render-advisor-report
 description: >
-  Render the five V1 deliverables from a completed Run by calling the
-  hosted Reliance engine's /v1/render_report endpoint — three
-  client-facing narrative one-pagers (Lifetime Tax Saved, Survivor Tax
-  Spike, RMD Escalation), plus the always-included Client Disclosures
-  one-pager and Advisor Audit package. Writes five HTML files to the
-  client's subfolder. Triggers when the advisor says "render the
-  report", "build the client one-pagers", "generate the deliverables",
-  "turn this Run into a deliverable", or asks for advisor-facing
-  output after a conversion analysis.
-version: 0.2.6
+  After the advisor clicks a Render button in run-conversion-analysis,
+  render three HTML deliverables from the stashed Run and write them to
+  the client's subfolder in the advisor's workspace. The three outputs
+  are the chosen narrative framing (Scenario Output), the Client
+  Disclosures page (Compliance Output), and the Advisor Audit (Advisor
+  Output). Triggers when the advisor commits to a rendered output
+  after reviewing conversion results in chat.
+version: 0.2.7
 ---
 
 # render-advisor-report
 
-Render the five V1 deliverables from a completed Run. Rendering is
-server-side; this skill POSTs the Run, receives five HTML strings, and
-writes them to the client's subfolder.
+Render three deliverables from the currently-stashed Run and write them
+to the advisor's workspace. This is the ONLY skill that writes to the
+workspace folder — build-scenario and run-conversion-analysis stash to
+/tmp and never touch the advisor's files.
 
-## What gets produced (every time)
+## Inputs
 
-Three client-facing narrative framings — advisor picks one per client:
+- **client_slug** — carried from build-scenario / run-conversion-analysis.
+- **chosen_framing** — one of: `lifetime_tax_saved`, `survivor_tax_spike`,
+  `rmd_escalation`. Captured by the push-button in run-conversion-analysis.
+- **report_date** — ask via push-button: current month (Recommended) /
+  prior month / custom.
 
-- **lifetime_tax_saved** — dollar-savings headline
-- **survivor_tax_spike** — surviving-spouse reframing (MFJ only)
-- **rmd_escalation** — bracket-by-age chart included
+Do NOT ask for the other four fields the server supports (firm name,
+tagline, advisor name, etc.) in V1 — defaults to Reliance branding.
 
-Always-paired (contract-required):
+## Three deliverables produced
 
-- **client_disclosures** — "not tax advice" page, methodology, key
-  assumption ledger. Pair with whichever narrative lever the advisor
-  chooses.
-- **advisor_audit** — 3-page advisor-only working document: cover +
-  client inputs, plan vs. baseline lifetime comparison + first-year
-  snapshot, methodology + source ledger + known limitations. Not for
-  client distribution.
+All three land in the client's subfolder in the advisor's workspace:
+
+- **Scenario Output** — the client-facing narrative one-pager matching
+  `chosen_framing`. This is the document the advisor pairs with the
+  compliance page to send to the client.
+- **Compliance Output** — the Client Disclosures page ("not tax
+  advice," methodology, assumption ledger). Always paired with the
+  narrative one-pager when going to the client.
+- **Advisor Output** — the 3-page Advisor Audit. Internal working
+  document, not for client distribution.
 
 ## How to invoke
 
@@ -43,11 +48,17 @@ Always-paired (contract-required):
 ENGINE_URL="${RELIANCE_ENGINE_URL:-https://reliance-engine.fly.dev}"
 API_KEY="${RELIANCE_API_KEY:-fc82892fb8966b9350ff066a356bac6d1007aaae82456e46}"
 
-RUN_PATH="<path to run.json>"
-REPORT_DATE="<advisor-supplied, e.g. April 2026>"
-OUT_DIR="$(dirname "$RUN_PATH")"
-CLIENT_SLUG="$(basename "$OUT_DIR")"
+CLIENT_SLUG="<slug carried through session>"
+CHOSEN_FRAMING="<lifetime_tax_saved|survivor_tax_spike|rmd_escalation>"
+REPORT_DATE="<e.g. April 2026>"
+RUN_PATH="/tmp/reliance/$CLIENT_SLUG/run.json"
 
+# Workspace output directory — create the client subfolder if it doesn't exist
+# The advisor's workspace folder is whatever their current outputs_dir is.
+OUT_DIR="<outputs_dir>/$CLIENT_SLUG"
+mkdir -p "$OUT_DIR"
+
+# Build request envelope
 python3 -c "
 import json, sys
 run = json.load(open(sys.argv[1]))
@@ -55,6 +66,7 @@ body = {'run': run, 'report_date': sys.argv[2]}
 json.dump(body, open('/tmp/_render_envelope.json','w'))
 " "$RUN_PATH" "$REPORT_DATE"
 
+# Call the render endpoint — returns all five HTMLs, we'll keep three
 curl -sS -X POST "$ENGINE_URL/v1/render_report" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
@@ -62,6 +74,7 @@ curl -sS -X POST "$ENGINE_URL/v1/render_report" \
   -o /tmp/_rendered.json \
   -w "HTTP %{http_code}\n"
 
+# Write only the three deliverables the advisor committed to
 python3 -c "
 import json, sys, os
 data = json.load(open('/tmp/_rendered.json'))
@@ -70,68 +83,85 @@ if 'levers' not in data:
 run_short = data['run_id'][:8]
 slug = sys.argv[2]
 outdir = sys.argv[1]
-for lever, html in data['levers'].items():
-    p = os.path.join(outdir, f'{slug}__{run_short}__{lever}.html')
-    open(p,'w').write(html); print(p)
+framing = sys.argv[3]
+
+# 1. Scenario Output — the chosen narrative framing
+narrative_html = data['levers'].get(framing)
+if narrative_html:
+    p = os.path.join(outdir, f'{slug}__{run_short}__{framing}.html')
+    open(p,'w').write(narrative_html); print(p)
+
+# 2. Compliance Output — Client Disclosures
 if 'client_disclosures' in data:
     p = os.path.join(outdir, f'{slug}__{run_short}__client_disclosures.html')
     open(p,'w').write(data['client_disclosures']); print(p)
+
+# 3. Advisor Output — Advisor Audit
 if 'advisor_audit' in data:
     p = os.path.join(outdir, f'{slug}__{run_short}__advisor_audit.html')
     open(p,'w').write(data['advisor_audit']); print(p)
-" "$OUT_DIR" "$CLIENT_SLUG"
+" "$OUT_DIR" "$CLIENT_SLUG" "$CHOSEN_FRAMING"
 ```
 
-Five files land in the client's subfolder, all named
-`{client_slug}__{run_short}__{kind}.html`.
+The server returns all five HTMLs on every render call. We discard the
+two unchosen narrative framings — the advisor only sees the three they
+committed to.
 
 ## Advisor-facing confirmation
 
-Keep it tight:
+Keep it tight. Link the three files. No other commentary:
 
-> **Done. Five files saved to `<subfolder>`.**
+> **Done. Three files in `<subfolder>`:**
 >
-> Client-facing — pick the framing that fits:
+> - [Scenario — `<chosen framing label>`](path)
+> - [Compliance — Client Disclosures](path)
+> - [Advisor — Audit](path)
 >
-> - Lifetime Tax Saved — headlines the dollar savings
-> - Survivor Tax Spike — reframes for widowed-spouse exposure (MFJ only)
-> - RMD Escalation — includes the bracket-by-age chart
->
-> Always paired:
->
-> - Client Disclosures — send with whichever framing you pick
-> - Advisor Audit — internal working document, not for client
+> Pair the Scenario with the Compliance page when you send to the
+> client. Keep the Advisor Audit in the file.
 
-## What the advisor must supply
-
-- **report_date** — free-text month/year (e.g. "April 2026"). Ask via
-  push-button with current month Recommended.
+No trailing postamble. No "let me know if you need anything else."
 
 ## Operational notes
 
-- Halted runs return HTTP 422 with `error: "run_halted"` and the
-  `halt_code` / `advisor_message`. Surface to advisor and prompt
-  Scenario adjust.
-- Short horizons may produce negative `lifetime_federal_tax_saved` —
-  mathematically honest; extend horizon or pick different lever.
-- Engine disclosures (`irmaa_projected`, `unverified_state_facts`)
-  append server-side to the default disclosure paragraph.
+- **Halted runs cannot render.** Server returns 422 with
+  `error: "run_halted"` + halt_code + advisor_message. Surface to the
+  advisor; route back to run-conversion-analysis or build-scenario.
+- **Short horizons may produce negative lifetime_federal_tax_saved** —
+  mathematically honest; extend horizon or pick a different framing.
+- **Engine disclosures** (e.g. `irmaa_projected`, `unverified_state_facts`)
+  append server-side to the default disclosure paragraph on both the
+  Scenario Output and Compliance Output.
+
+## Filename convention
+
+All three files use `{client_slug}__{run_short}__{kind}.html` where
+`kind` is:
+- `lifetime_tax_saved` | `survivor_tax_spike` | `rmd_escalation` — the
+  chosen narrative framing (exactly one of these, never two)
+- `client_disclosures`
+- `advisor_audit`
+
+The run_short (first 8 chars of run_id) lets the advisor tell multiple
+same-client runs apart. The explicit framing name in the filename means
+you can see at a glance later which story was used.
+
+## Reference material bundled with this skill
+
+Two reference-only folders for inspection and design review:
+
+- `templates/` — the five Jinja2 source templates (snapshots of what
+  the server renders at plugin build time).
+- `examples/` — five actual rendered HTMLs from a live Doe run, so
+  anyone can preview the deliverables without running the engine.
+
+These files are NOT executed. Canonical templates render server-side.
+Snapshots may drift if the server updates.
 
 ## Out of scope
 
 - PDF export. HTML only. Browser print-to-PDF works.
-- Docx export. V1 is HTML only.
-
-## Reference material bundled with this skill
-
-Two reference-only folders sit next to this SKILL.md for inspection and
-design review:
-
-- `templates/` — the five Jinja2 source templates (snapshots of what the
-  server renders at plugin build time).
-- `examples/` — five actual rendered HTMLs from one live Doe run, so
-  anyone can preview the deliverables without running the engine.
-
-These files are NOT executed. Canonical templates live server-side on the
-hosted Reliance engine. If the server updates templates, these in-plugin
-copies can drift — treat as snapshots.
+- Docx export.
+- Generating all three narrative framings at once. The advisor commits
+  to exactly one framing per render; the other two are available only
+  by re-running the skill with a different choice.

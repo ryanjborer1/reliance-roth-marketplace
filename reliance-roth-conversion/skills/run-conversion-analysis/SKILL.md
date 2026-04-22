@@ -1,45 +1,39 @@
 ---
 name: run-conversion-analysis
 description: >
-  Run a prepared Scenario through the hosted Reliance engine and save
-  the resulting Run JSON to the client's subfolder. Surfaces engine
-  halts in plain language so the advisor can adjust inputs. Triggers
-  when the advisor says "run it", "run the analysis", "execute the
-  scenario", "compute the numbers", "calculate the conversion", or
-  asks for the output after a Scenario was just built by
-  build-scenario.
-version: 0.2.6
+  Run a prepared Scenario through the hosted Reliance engine, stash the
+  Run to a temporary location, and show the advisor a chat summary so
+  they can iterate on the schedule or commit to rendering. Writes
+  NOTHING to the advisor's workspace until they click a render button.
+  Triggers when the advisor says "run it", "run the analysis", "execute
+  the scenario", "compute the numbers", or the advisor just confirmed a
+  scenario in build-scenario.
+version: 0.2.7
 ---
 
 # run-conversion-analysis
 
-Execute a Scenario JSON through the hosted Reliance engine and save
-the returned Run JSON. Engine v1.0.0 is numerically locked; this skill
-is a thin HTTPS wrapper.
+Run the stashed Scenario through the hosted engine, stash the Run,
+summarize in chat, offer a one-click commit or iterate.
 
 ## Tone
 
-Short confirmations. Lead with decision-relevant numbers. Never dump
-per-year tables in chat. When halts happen, quote the engine's
-advisor_message verbatim and add the fix in plain language.
+Short. Lead with decision-relevant numbers. Halts get a plain-language
+fix after quoting the engine's advisor_message verbatim.
 
-## Inputs
+## How to run
 
-Path to a Scenario JSON — usually the file just emitted by
-build-scenario. If no path given, look for the most recent `*.json`
-in the current client subfolder, or ask.
-
-## How to run it
-
-Use Bash. The engine URL and API key are inline — for a different
-deployment, set `RELIANCE_ENGINE_URL` / `RELIANCE_API_KEY` env vars.
+Pull the Scenario from the ephemeral stash at
+`/tmp/reliance/<client_slug>/scenario.json` (written by build-scenario).
+Do NOT look in the advisor's workspace folder — that's commit-only.
 
 ```bash
 ENGINE_URL="${RELIANCE_ENGINE_URL:-https://reliance-engine.fly.dev}"
 API_KEY="${RELIANCE_API_KEY:-fc82892fb8966b9350ff066a356bac6d1007aaae82456e46}"
 
-SCENARIO_PATH="<path>"
-RUN_PATH="$(dirname "$SCENARIO_PATH")/run.json"
+CLIENT_SLUG="<slug carried from build-scenario>"
+SCENARIO_PATH="/tmp/reliance/$CLIENT_SLUG/scenario.json"
+RUN_PATH="/tmp/reliance/$CLIENT_SLUG/run.json"
 
 python3 -c "
 import json, sys
@@ -55,14 +49,14 @@ curl -sS -X POST "$ENGINE_URL/v1/run_scenario" \
   -w "HTTP %{http_code}\n"
 ```
 
-## Interpreting the result
+Read `$RUN_PATH` and check `status`:
 
-Read the Run JSON and check `status`:
+- `"ok"` — output_bundle present. Summarize (below).
+- `"halted"` — quote halt.advisor_message + fix.
 
-- `"ok"` — `output_bundle` is present. Summarize for the advisor.
-- `"halted"` — `halt` is present, no bundle. Explain in plain language.
+## Advisor-facing summary
 
-## Advisor-facing summary (success)
+Numbers in chat only. No files yet.
 
 > **Done. run_id `<first 8>`.** Projection ran `<first>` through `<last>`.
 >
@@ -79,31 +73,52 @@ Read the Run JSON and check `status`:
 > - Top marginal bracket during conversions: `<bracket>`.
 > - Flags: `<disclosures>` if any.
 
-Follow with a push-button: `Render the client one-pagers (Recommended)` /
-`Try a different schedule` / `Good for now, exit`.
+## Commit push-button
 
-## Halt-code playbook
+Right after the summary, open a single AskUserQuestion. Options
+collapse "which scenario" + "which narrative framing" into one click.
 
-Quote `halt.advisor_message` verbatim, then add one sentence of fix:
+**MFJ (4 options):**
+- Render: Lifetime Tax Saved (Recommended) — dollar-savings headline
+- Render: Survivor Tax Spike — reframes for widowed-spouse exposure
+- Render: RMD Escalation — bracket-by-age chart
+- Try a different schedule — iterate
 
-- **STATE_FACTS_UNVERIFIED** — Pilot-grade state numbers; run anyway or wait for Tyler?
-- **STATE_UNSUPPORTED** — Preview federal/IRMAA math as FL/TX while we add the state?
-- **BROKERAGE_INSUFFICIENT** — Increase brokerage, shrink schedule, shorten horizon, or withhold from IRA?
-- **BROKERAGE_BUDGET_EXHAUSTED** — Raise the budget or switch to withhold-after-exhaust?
-- **CONVERSION_EXCEEDS_TRADITIONAL** — Trim the schedule, it exceeds the projected IRA balance.
-- **FILING_STATUS_UNSUPPORTED** — V1 is MFJ/Single only; HOH/MFS aren't in yet.
-- **HORIZON_BEFORE_START / DEATH_EVENT_BEFORE_START** — Fix the year in build-scenario.
-- **DEATH_EVENT_BOTH_SPOUSES** — V1 models one surviving spouse at a time.
-- **TAX_FACT_VERSION_NOT_LOADED / ENGINE_VERSION_MISMATCH** — V1 is 2025.11 / 1.0.0 only.
-- **INTERNAL_INVARIANT** — Engine bug; capture run_id and flag.
-- **NEGATIVE_INPUT** — Validation issue; fix in build-scenario.
+**Single (3 options — no Survivor framing):**
+- Render: Lifetime Tax Saved (Recommended)
+- Render: RMD Escalation
+- Try a different schedule
+
+If "Try a different schedule": route to build-scenario with current
+facts loaded, advisor changes only the conversion plan, loop repeats.
+
+If any "Render:" option: hand to render-advisor-report with the chosen
+framing. Advisor's workspace only gets written to at that point.
+
+## Halt playbook
+
+Quote `halt.advisor_message`, then fix:
+
+- **STATE_FACTS_UNVERIFIED** — Pilot state; run anyway or wait for Tyler?
+- **STATE_UNSUPPORTED** — FL/TX preview available while we add the state?
+- **BROKERAGE_INSUFFICIENT** — Bump brokerage, shrink schedule, shorten horizon, or withhold from IRA?
+- **BROKERAGE_BUDGET_EXHAUSTED** — Raise budget or withhold-after-exhaust?
+- **CONVERSION_EXCEEDS_TRADITIONAL** — Trim the schedule.
+- **FILING_STATUS_UNSUPPORTED** — V1 is MFJ/Single only.
+- **HORIZON_BEFORE_START / DEATH_EVENT_BEFORE_START** — Fix year in build-scenario.
+- **DEATH_EVENT_BOTH_SPOUSES** — V1 models one surviving spouse.
+- **TAX_FACT_VERSION_NOT_LOADED / ENGINE_VERSION_MISMATCH** — V1 supports 2025.11 / 1.0.0.
+- **INTERNAL_INVARIANT** — Engine bug; capture run_id.
+- **NEGATIVE_INPUT** — Fix in build-scenario.
 
 ## Determinism
 
-`run_id` is a stable hash of Scenario + engine version + tax-fact
-version. Same JSON → same run_id.
+Same stashed Scenario → same run_id. If advisor iterates, each new
+variant gets a new run_id. The conversation transcript is the history
+— advisor can say "back to the $150K version" and the LLM re-runs that
+variant.
 
 ## Out of scope
 
-- Rendering — that's render-advisor-report.
-- Modifying the Scenario — route back to build-scenario.
+- Workspace writes (render-advisor-report only, commit-only).
+- HTML production (same).
